@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva: El Bosque de la Formación</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel para JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- FontAwesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #e0f2f1;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .title-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Animaciones personalizadas */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+        .animate-pulse-ring { animation: pulse-ring 2s infinite; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #8bc34a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #689f38; }
+
+        .path-line {
+            stroke-dasharray: 10;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -1000; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Componentes Gráficos (SVGs) ---
+        const BearOso = ({ className = "w-32 h-32" }) => (
+            <svg viewBox="0 0 200 250" className={className} xmlns="http://www.w3.org/2000/svg">
+                {/* Cuerpo */}
+                <path d="M50,250 C50,150 30,100 100,100 C170,100 150,150 150,250 Z" fill="#1A237E" />
+                {/* Chaleco */}
+                <path d="M60,250 L60,160 C60,140 80,120 100,120 C120,120 140,140 140,160 L140,250 Z" fill="#8D6E63" opacity="0.9"/>
+                {/* Pecho crema */}
+                <path d="M80,250 C80,200 85,150 100,150 C115,150 120,200 120,250 Z" fill="#FFF8E1" />
+                {/* Orejas */}
+                <circle cx="65" cy="55" r="15" fill="#1A237E" />
+                <circle cx="135" cy="55" r="15" fill="#1A237E" />
+                {/* Cabeza */}
+                <circle cx="100" cy="80" r="40" fill="#1A237E" />
+                {/* Hocico crema */}
+                <circle cx="100" cy="95" r="20" fill="#FFF8E1" />
+                <ellipse cx="100" cy="88" rx="8" ry="5" fill="#000" />
+                <path d="M100,93 L100,102 M90,100 Q100,110 110,100" stroke="#000" strokeWidth="2" fill="none" />
+                {/* Ojos */}
+                <circle cx="85" cy="75" r="4" fill="#000" />
+                <circle cx="115" cy="75" r="4" fill="#000" />
+                {/* Gafas amarillas */}
+                <circle cx="85" cy="75" r="12" fill="none" stroke="#FBC02D" strokeWidth="4" />
+                <circle cx="115" cy="75" r="12" fill="none" stroke="#FBC02D" strokeWidth="4" />
+                <line x1="97" y1="75" x2="103" y2="75" stroke="#FBC02D" strokeWidth="4" />
+                {/* Sombrero Safari */}
+                <path d="M50,55 Q100,45 150,55 L130,35 Q100,20 70,35 Z" fill="#A1887F" />
+                <path d="M70,35 Q100,20 130,35 L120,15 Q100,5 80,15 Z" fill="#8D6E63" />
+            </svg>
+        );
+
+        const MountainsBg = () => (
+            <div className="absolute bottom-0 left-0 w-full overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
+                <svg viewBox="0 0 1200 300" preserveAspectRatio="none" className="w-full h-48 md:h-64 opacity-80">
+                    {/* Montaña fondo */}
+                    <path d="M0,300 L300,50 L600,300 Z" fill="#81C784" />
+                    <path d="M300,50 L400,130 L300,180 Z" fill="#FFF" opacity="0.6"/> {/* Nieve */}
+                    {/* Montaña medio */}
+                    <path d="M400,300 L750,20 L1200,300 Z" fill="#4CAF50" />
+                    <path d="M750,20 L850,100 L750,150 Z" fill="#FFF" opacity="0.8"/> {/* Nieve */}
+                    {/* Montaña frente */}
+                    <path d="M-100,300 L200,120 L500,300 Z" fill="#388E3C" />
+                    <path d="M800,300 L1000,150 L1300,300 Z" fill="#2E7D32" />
+                </svg>
+            </div>
+        );
+
+        // --- Datos de la Cartilla ---
+        const equipaje = [
+            { icon: 'fa-campground', name: 'Carpa', desc: 'Espacio de encuentro familiar para dialogar.' },
+            { icon: 'fa-book', name: 'Cuaderno', desc: 'Tu bitácora para atesorar reflexiones y actividades.' },
+            { icon: 'fa-puzzle-piece', name: 'Ficha', desc: 'Actividades para compartir con amigos o familia.' },
+            { icon: 'fa-search', name: 'Lupa', desc: 'Definiciones de términos clave e importantes.' },
+            { icon: 'fa-lightbulb', name: 'Linterna', desc: 'Espacios tranquilos de reflexión profunda.' },
+            { icon: 'fa-mobile-screen', name: 'Celular', desc: 'Momento de compartir evidencias con tu docente.' },
+            { icon: 'fa-ticket', name: 'Tiquete', desc: 'Pase al siguiente nivel tras cumplir actividades.' }
+        ];
+
+        const trayectos = [
+            { id: 1, title: "1. Aprendamos de tu territorio", color: "bg-teal-500", icon: "fa-map-location-dot",
+              content: "Comienza analizando el lugar donde vives. Reconoce las características de tu territorio, a qué se dedican las personas y las problemáticas de tu región. ¡Diseña soluciones creativas desde tus ideas!" },
+            { id: 2, title: "2. ¡Preparémonos para el viaje!", color: "bg-sky-500", icon: "fa-stairs",
+              content: "Dibuja tu 'Escalera Escolar' desde preescolar hasta hoy. Reflexiona sobre tus logros y retos superados. Luego, crea una historieta proyectándote a 5 y 10 años en el futuro." },
+            { id: 3, title: "3. El Bosque de la Formación", color: "bg-green-600", icon: "fa-tree",
+              content: "Dibuja tu propio árbol: Las raíces son tus pasiones, el tronco tus habilidades, y las ramas las áreas fundamentales del colegio. Conéctalas con tu proyecto de vida." },
+            { id: 4, title: "4. Formación para el Trabajo", color: "bg-orange-500", icon: "fa-tools",
+              content: "Explora la Formación para el Trabajo y Desarrollo Humano (ETDH). Se centra en capacitarte rápidamente (12-18 meses) en oficios y áreas técnicas para ingresar pronto al mundo laboral." },
+            { id: 5, title: "5. Formación Superior", color: "bg-yellow-500", icon: "fa-user-graduate",
+              content: "Conoce las carreras Técnicas Profesionales, Tecnológicas y Universitarias. Aquí profundizarás teóricamente y podrás aspirar a cargos de mayor liderazgo tras 2 a 5 años de estudio." },
+            { id: 6, title: "6. Requisitos y Estrategias", color: "bg-indigo-500", icon: "fa-magnifying-glass-chart",
+              content: "Investiga a fondo tu elección: costos, duración y requisitos. Prepárate para los obstáculos: busca becas, gestiona apoyo emocional y sé persistente ante las dificultades." },
+            { id: 7, title: "7. Cursos Virtuales y Bootcamps", color: "bg-pink-500", icon: "fa-laptop-code",
+              content: "¡El nuevo bosque digital! Explora plataformas como Coursera, edX, Domestika o Bootcamps de programación (Laboratoria, Educamas). Son intensivos, flexibles y de alta empleabilidad." }
+        ];
+
+        const comparativa = [
+            { type: "ETDH (Técnico Laboral)", duration: "12 a 18 meses", cost: "Gratis (SENA) o Bajo costo", salario: "Aprox. $950.000", pro: "Rápida inserción laboral, muy práctico." },
+            { type: "Educación Superior (Univ.)", duration: "4 a 5 años", cost: "Variable (Pública/Privada)", salario: "Aprox. $2.441.000+", pro: "Cargos de decisión, profundización teórica." },
+            { type: "Bootcamps Digitales", duration: "3 a 6 meses", cost: "Gratis o pago posterior", salario: "Aprox. $3.750.000", pro: "Alta demanda en tech, aprendizaje por proyectos reales." }
+        ];
+
+        // --- Aplicación Principal ---
+        const App = () => {
+            const [currentView, setCurrentView] = useState('home'); // home, equipaje, mapa, comparativa
+            const [activeTrayecto, setActiveTrayecto] = useState(null);
+            const [menuOpen, setMenuOpen] = useState(false);
+
+            const navigateTo = (view) => {
+                setCurrentView(view);
+                setMenuOpen(false);
+            };
+
+            const renderView = () => {
+                switch(currentView) {
+                    case 'home': return <HomeView setView={navigateTo} />;
+                    case 'equipaje': return <EquipajeView setView={navigateTo} />;
+                    case 'mapa': return <MapaView setView={navigateTo} activeTrayecto={activeTrayecto} setActiveTrayecto={setActiveTrayecto} />;
+                    case 'comparativa': return <ComparativaView setView={navigateTo} />;
+                    default: return <HomeView setView={navigateTo} />;
+                }
+            };
+
+            return (
+                <div className="min-h-screen relative overflow-hidden flex flex-col bg-gradient-to-b from-[#b3e5fc] to-[#e8f5e9]">
+                    <MountainsBg />
+                    
+                    {/* Header */}
+                    <header className="relative z-10 p-3 sm:p-4 flex justify-between items-center glass-panel m-2 sm:m-4">
+                        <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => navigateTo('home')}>
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center overflow-hidden border-2 border-green-500">
+                                <BearOso className="w-10 h-10 sm:w-12 sm:h-12 mt-2" />
+                            </div>
+                            <h1 className="text-lg sm:text-xl md:text-2xl text-green-800 tracking-wide title-font">Guía OSO</h1>
+                        </div>
+                        
+                        {/* Desktop nav */}
+                        <nav className="hidden lg:flex gap-4">
+                            <button onClick={() => navigateTo('equipaje')} className={`font-bold px-4 py-2 rounded-full transition-colors ${currentView==='equipaje'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>Equipaje</button>
+                            <button onClick={() => navigateTo('mapa')} className={`font-bold px-4 py-2 rounded-full transition-colors ${currentView==='mapa'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>El Viaje</button>
+                            <button onClick={() => navigateTo('comparativa')} className={`font-bold px-4 py-2 rounded-full transition-colors ${currentView==='comparativa'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>Comparativa</button>
+                        </nav>
+                        
+                        {/* Tablet nav */}
+                        <nav className="hidden sm:flex lg:hidden gap-2">
+                            <button onClick={() => navigateTo('equipaje')} className={`font-bold px-3 py-1.5 rounded-full text-sm transition-colors ${currentView==='equipaje'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>Equipaje</button>
+                            <button onClick={() => navigateTo('mapa')} className={`font-bold px-3 py-1.5 rounded-full text-sm transition-colors ${currentView==='mapa'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>El Viaje</button>
+                            <button onClick={() => navigateTo('comparativa')} className={`font-bold px-3 py-1.5 rounded-full text-sm transition-colors ${currentView==='comparativa'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>Comparativa</button>
+                        </nav>
+                        
+                        {/* Mobile hamburger */}
+                        <button onClick={() => setMenuOpen(!menuOpen)} className="sm:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 text-green-700">
+                            <span className={`w-6 h-0.5 bg-current transition-transform ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                            <span className={`w-6 h-0.5 bg-current transition-opacity ${menuOpen ? 'opacity-0' : ''}`}></span>
+                            <span className={`w-6 h-0.5 bg-current transition-transform ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                        </button>
+                    </header>
+                    
+                    {/* Mobile menu dropdown */}
+                    {menuOpen && (
+                        <div className="sm:hidden relative z-10 mx-2 mb-2 glass-panel p-4 flex flex-col gap-2 animate-fade-in">
+                            <button onClick={() => navigateTo('equipaje')} className={`font-bold px-4 py-3 rounded-xl transition-colors text-left ${currentView==='equipaje'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>
+                                <i className="fa-solid fa-backpack mr-2"></i> Equipaje
+                            </button>
+                            <button onClick={() => navigateTo('mapa')} className={`font-bold px-4 py-3 rounded-xl transition-colors text-left ${currentView==='mapa'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>
+                                <i className="fa-solid fa-map mr-2"></i> El Viaje
+                            </button>
+                            <button onClick={() => navigateTo('comparativa')} className={`font-bold px-4 py-3 rounded-xl transition-colors text-left ${currentView==='comparativa'?'bg-green-600 text-white':'text-green-700 hover:bg-green-100'}`}>
+                                <i className="fa-solid fa-scale-balanced mr-2"></i> Comparativa
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Contenido Dinámico */}
+                    <main className="flex-grow relative z-10 flex flex-col items-center p-4">
+                        <div className="w-full max-w-5xl flex-grow flex flex-col justify-center relative">
+                            {renderView()}
+                        </div>
+                    </main>
+
+                </div>
+            );
+        };
+
+        // --- Vistas ---
+        
+        const HomeView = ({ setView }) => (
+            <div className="animate-fade-in flex flex-col md:flex-row items-center justify-center gap-8 bg-white/70 backdrop-blur-md p-8 md:p-12 rounded-3xl shadow-xl border border-white/50">
+                <div className="flex-1 text-center md:text-left">
+                    <span className="inline-block px-4 py-1 rounded-full bg-yellow-400 text-yellow-900 font-bold text-sm mb-4 uppercase tracking-wider">Cartilla Interactiva</span>
+                    <h2 className="text-4xl md:text-5xl text-slate-800 leading-tight mb-4 title-font">
+                        ¿Quién soy y qué quiero <span className="text-green-600">aprender?</span>
+                    </h2>
+                    <p className="text-lg text-slate-700 mb-8 font-medium">
+                        ¡Hola! Soy OSO. Te doy la bienvenida al <strong className="text-teal-700">Bosque de la Formación</strong>. 
+                        Aquí exploraremos el sistema educativo, tus opciones después del colegio y herramientas para cumplir tus sueños.
+                    </p>
+                    <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                        <button onClick={() => setView('equipaje')} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105 flex items-center gap-2">
+                            <i className="fa-solid fa-backpack"></i> Ver Equipaje
+                        </button>
+                        <button onClick={() => setView('mapa')} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105 flex items-center gap-2">
+                            <i className="fa-solid fa-map-location-dot"></i> Iniciar Viaje
+                        </button>
+                    </div>
+                </div>
+                <div className="flex-1 flex justify-center animate-float relative">
+                    <div className="absolute inset-0 bg-yellow-300 rounded-full blur-3xl opacity-30 transform scale-150"></div>
+                    <BearOso className="w-64 h-64 md:w-80 md:h-80 drop-shadow-2xl relative z-10" />
+                </div>
+            </div>
+        );
+
+        const EquipajeView = ({ setView }) => (
+            <div className="animate-fade-in glass-panel p-6 md:p-10 text-center w-full max-w-4xl mx-auto">
+                <h2 className="text-3xl text-slate-800 mb-2 title-font">Revisa tu Equipaje</h2>
+                <p className="text-slate-600 mb-8 max-w-2xl mx-auto">Antes de adentrarnos en el bosque, reconoce los íconos que te guiarán en las actividades de la cartilla.</p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    {equipaje.map((item, idx) => (
+                        <div key={idx} className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow border-2 border-transparent hover:border-green-400 flex flex-col items-center group">
+                            <div className="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">
+                                <i className={`fa-solid ${item.icon}`}></i>
+                            </div>
+                            <h3 className="font-bold text-slate-700">{item.name}</h3>
+                            <p className="text-xs text-slate-500 mt-2 leading-tight">{item.desc}</p>
+                        </div>
+                    ))}
+                </div>
+                
+                <div className="mt-8">
+                    <button onClick={() => setView('mapa')} className="bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-green-700 transition">
+                        ¡Todo listo! Ir al Mapa <i className="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        );
+
+        const MapaView = ({ setView, activeTrayecto, setActiveTrayecto }) => {
+            return (
+                <div className="animate-fade-in w-full bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl border-4 border-white overflow-hidden flex flex-col">
+                    <div className="p-3 sm:p-4 bg-white/80 border-b border-gray-200 flex justify-between items-center z-20">
+                        <h2 className="text-lg sm:text-xl md:text-2xl text-green-800 title-font"><i className="fa-solid fa-map mr-2"></i>Mapa del Bosque</h2>
+                        <button onClick={() => setView('comparativa')} className="text-xs sm:text-sm font-bold text-teal-600 hover:text-teal-800">Ver Comparativa <i className="fa-solid fa-arrow-right"></i></button>
+                    </div>
+
+                    <div className="flex-grow p-4 sm:p-6 bg-[#e8f5e9] relative">
+                        {/* Nodos interactivos - Grid responsivo */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+                            {trayectos.map((trayecto, index) => {
+                                const isActive = activeTrayecto && activeTrayecto.id === trayecto.id;
+                                
+                                return (
+                                    <button 
+                                        key={trayecto.id}
+                                        onClick={() => setActiveTrayecto(trayecto)}
+                                        className={`flex flex-col items-center gap-2 p-4 rounded-2xl transition-all hover:scale-105 hover:shadow-lg
+                                            ${isActive ? 'ring-4 ring-green-400 bg-white shadow-lg scale-105' : 'bg-white/80 hover:bg-white shadow-md'}`}
+                                    >
+                                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white text-xl shadow-lg transition-all
+                                            ${trayecto.color} ${isActive ? 'ring-4 ring-white ring-opacity-80' : 'animate-pulse-ring'}`}>
+                                            <i className={`fa-solid ${trayecto.icon}`}></i>
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-xs font-bold text-green-700 block mb-1">Trayecto {trayecto.id}</span>
+                                            <span className="text-[10px] sm:text-xs text-slate-600 leading-tight line-clamp-2">{trayecto.title.substring(trayecto.title.indexOf('.') + 2)}</span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Modal de Detalle */}
+                        {activeTrayecto && (
+                            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-center justify-center p-4 animate-fade-in">
+                                <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+                                    <button onClick={() => setActiveTrayecto(null)} className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-400 hover:text-red-500 text-xl sm:text-2xl transition">
+                                        <i className="fa-solid fa-circle-xmark"></i>
+                                    </button>
+                                    
+                                    <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-white text-2xl sm:text-3xl mb-4 shadow-md ${activeTrayecto.color}`}>
+                                        <i className={`fa-solid ${activeTrayecto.icon}`}></i>
+                                    </div>
+                                    
+                                    <h3 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">{activeTrayecto.title}</h3>
+                                    <div className="w-12 h-1 bg-green-500 mb-4 rounded"></div>
+                                    
+                                    <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-6">
+                                        {activeTrayecto.content}
+                                    </p>
+                                    
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                        <span className="text-xs sm:text-sm text-gray-500 font-bold"><i className="fa-solid fa-circle-check text-green-500 mr-1"></i> Tarea: Reflexionar y anotar en cuaderno.</span>
+                                        {activeTrayecto.id < 7 ? (
+                                            <button onClick={() => setActiveTrayecto(trayectos[activeTrayecto.id])} className="text-xs sm:text-sm bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition whitespace-nowrap">
+                                                Siguiente <i className="fa-solid fa-arrow-right ml-1"></i>
+                                            </button>
+                                        ) : (
+                                            <button onClick={() => {setActiveTrayecto(null); setView('comparativa');}} className="text-xs sm:text-sm bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition font-bold whitespace-nowrap">
+                                                Ver Resumen Final <i className="fa-solid fa-flag-checkered ml-1"></i>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Oso helper */}
+                        {!activeTrayecto && (
+                            <div className="mt-6 flex items-end justify-center gap-3 animate-fade-in">
+                                <BearOso className="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-md" />
+                                <div className="bg-white px-4 py-2 rounded-2xl rounded-bl-none shadow-md text-xs sm:text-sm font-bold text-slate-700 border border-gray-200">
+                                    ¡Toca un círculo para avanzar!
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const ComparativaView = ({ setView }) => (
+            <div className="animate-fade-in glass-panel p-6 md:p-8 w-full max-w-5xl mx-auto">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-3xl text-slate-800 title-font"><i className="fa-solid fa-scale-balanced text-teal-600"></i> Resumen de Caminos</h2>
+                    <button onClick={() => setView('mapa')} className="text-slate-500 hover:text-slate-800 font-bold bg-white px-3 py-1 rounded-full shadow"><i className="fa-solid fa-arrow-left"></i> Volver al Mapa</button>
+                </div>
+                
+                <p className="text-slate-600 mb-8 max-w-3xl">Al graduarte del colegio, tienes distintas opciones de formación. Observa esta tabla comparativa para que tomes la decisión más informada según tu proyecto de vida.</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {comparativa.map((item, idx) => (
+                        <div key={idx} className="bg-white rounded-3xl p-6 shadow-lg border-t-8 border-green-500 relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
+                            <div className="absolute top-0 right-0 bg-green-100 w-24 h-24 rounded-bl-full -mr-4 -mt-4 opacity-50"></div>
+                            
+                            <h3 className="text-xl font-bold text-slate-800 mb-4 h-14">{item.type}</h3>
+                            
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-1"><i className="fa-solid fa-clock"></i></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase">Tiempo</p>
+                                        <p className="text-sm font-semibold text-slate-700">{item.duration}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 mt-1"><i className="fa-solid fa-wallet"></i></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase">Costo Promedio</p>
+                                        <p className="text-sm font-semibold text-slate-700">{item.cost}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0 mt-1"><i className="fa-solid fa-money-bill-trend-up"></i></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase">Salario Inicial (Aprox)</p>
+                                        <p className="text-sm font-semibold text-slate-700">{item.salario}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center shrink-0 mt-1"><i className="fa-solid fa-star"></i></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-bold uppercase">Lo Mejor</p>
+                                        <p className="text-sm font-semibold text-slate-700">{item.pro}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-10 bg-green-900 text-white p-6 rounded-2xl flex flex-col md:flex-row items-center gap-6 shadow-xl">
+                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-3xl shrink-0"><i className="fa-solid fa-quote-left"></i></div>
+                    <div>
+                        <p className="text-lg font-medium italic mb-2">"La clave del ÉXITO está en estructurar paso a paso y con disciplina el sueño que quieras cumplir."</p>
+                        <p className="text-green-300 font-bold text-sm">— Melissa Pakarina (Cartilla OSO)</p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- Renderizado Root ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
